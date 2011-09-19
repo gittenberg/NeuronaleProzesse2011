@@ -19,6 +19,9 @@ class LogSigmoid(object):
 	def arrLogSigm(self, ar):
 		return 1/(1+np.exp(-self.scale*x-self.center))
 
+	def sample_me(self, ar):
+		return self.arrLogSigm(ar) > np.random.random(ar.shape)
+	      
 if __name__ == '__main__':
 	myinstance = LogSigmoid(7, 8)
 	print myinstance.logSigm(1)
@@ -31,3 +34,5 @@ if __name__ == '__main__':
 	
 	x = np.array([1, 2, 3])
 	print otherinstance.arrLogSigm(x)
+
+	print otherinstance.sample_me(x)
