@@ -2,7 +2,7 @@
 import random
 from math import exp
 
-class SimpleClass(object):
+class LogSigmoid(object):
 	'''Proof of concept'''
 
 	def __init__(self, center, scale):
@@ -11,8 +11,16 @@ class SimpleClass(object):
 
 	def logSigm(self, x):
 		return 1/(1+exp(-self.scale*x-self.center))
+		
+	def listLogSigm(self, li):
+		return [logSigm(x) for x in li]
   
 if __name__ == '__main__':
-	myinstance = SimpleClass(7, 8)
+	myinstance = LogSigmoid(7, 8)
 	print myinstance.logSigm(1)
+
+	otherinstance = LogSigmoid(0, 1)
+	print otherinstance.logSigm(1)
 	
+	examplelist = [1, 2, 3]
+	print otherinstance.listLogSigm(examplelist)
