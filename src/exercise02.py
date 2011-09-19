@@ -2,32 +2,19 @@
 import random
 from math import exp
 
-class SimpleClass(object):
+class LogSigmoid(object):
 	'''Proof of concept'''
 
-	def __init__(self, param):
-		self.property1 = param
-		print "Setting value..." + str(self.property1) 
+	def __init__(self, center, scale):
+		self.center = center
+		self.scale = scale
 
-	def setter(self, param):
-		print "Setting..."
-		self.property1 = param
-
-	def printer(self):
-		print self.property1
-
-
-def logSigm(x):
-    return 1/(1+exp(x))
+	def logSigm(self, x):
+		return 1/(1+exp(-self.scale*x-self.center))
   
 if __name__ == '__main__':
-	x = 7
-	print x, '\t', logSigm(x)
-    
-	y = random.random()
-	print y, '\t', logSigm(y)
+	myinstance = LogSigmoid(7, 8)
+	print myinstance.logSigm(1)
 
-	myinstance = SimpleClass(7)
-	myinstance.setter(5)
-	myinstance.printer()
-	
+	otherinstance = LogSigmoid(0, 1)
+	print otherinstance.logSigm(1)
