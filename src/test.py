@@ -1,3 +1,5 @@
+# test from laptop
+
 from pyNN.neuron import * #doctest: +SKIP
 from pyNN.nest import *  #doctest: +SKIP
 from pyNN.pcsim import *  #doctest: +SKIP
