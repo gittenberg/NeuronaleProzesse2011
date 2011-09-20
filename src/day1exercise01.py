@@ -3,11 +3,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pickle
 
-a1 = scipy.io.loadmat('A1_data_set_040528_boucsein_nostruct.mat')
+a1 = scipy.io.loadmat('../data/A1_data_set_040528_boucsein_nostruct.mat')
 
 #exercise 1
 
-# 2 Sekunden entsprechen 2/(4e-05) = 50000 Datenpunkten
 data = a1['V'][:,0]
 interval = a1['SampleIntervalSeconds'][0][0]
 length = len(data) * interval
@@ -15,6 +14,7 @@ length = len(data) * interval
 #90.32 seconds
 timePoints = np.arange(0,length, interval)
 
+# 2 Sekunden entsprechen 2/(4e-05) = 50000 Datenpunkten
 plot = plt.plot(timePoints[:50001], data[:50001])
 
 ax = plt.gca()
@@ -24,11 +24,11 @@ ax.set_ylim(-75, 20)
 plt.draw()
 #plt.show()
 
-plt.savefig('figure1.png')
+plt.savefig('../output/day1_figure1.png')
 
 #exercise 2
 
-theta = -20 #threshold value
+theta = -10 #threshold value
 dataSpikes  = data>theta
 spikePoints = np.diff(dataSpikes)
 spikeTimes = np.where(np.logical_and(spikePoints, dataSpikes[:-1]))[0]
@@ -38,15 +38,9 @@ avgFiringRate = numActionPotentials / length
 #exercise 3
 
 n = int(0.01 / interval)
-spikeArray=[]
-for spikeOnsetTime in (spikeTimes[:-1]):
-    if(len(spikeArray) == 0):
-        spikeArray = np.array([data[spikeOnsetTime-n:spikeOnsetTime+n]])
-
-    else:
-        spikeArray = np.append(spikeArray,
-                np.array([data[spikeOnsetTime-n:spikeOnsetTime+n]]),
-                axis=0)
+spikeArray=[data[spikeTimes[0]-n:spikeTimes[0]+n]]
+for spikeOnsetTime in (spikeTimes[1:-1]):
+    spikeArray = np.append(spikeArray, [data[spikeOnsetTime-n:spikeOnsetTime+n]], axis=0)
 
 averageSpike = []
 varianceSpike = []
@@ -65,29 +59,35 @@ plt.ylabel('Membrane potential/mV')
 plt.plot(timePoints, averageSpike)
 plt.plot(timePoints, lower)
 plt.plot(timePoints, upper)
-plt.savefig('figure2.png')
+plt.plot(timePoints, np.array(varianceSpike))
+plt.savefig('../output/day1_figure2.png')
 
 #exercise 4
+
+deleteList = []
+for spikeOnsetTime in spikeTimes:
+    for x in range(spikeOnsetTime-n, spikeOnsetTime+n):
+	deleteList.append(x)
+
+dataWithoutSpikes = np.delete(data, deleteList)
 
 '''dataWithoutSpikes = data.copy()
 for spikeOnsetTime in (spikeTimes)[::-1]:
     print spikeOnsetTime 
     dataWithoutSpikes = np.delete(dataWithoutSpikes, range(spikeOnsetTime+n,
         spikeOnsetTime-n, -1))
-    #for x in range(spikeOnsetTime+n, spikeOnsetTime-n, -1):
-    #    dataWithoutSpikes = np.delete(dataWithoutSpikes, x)
+
+pickle.dump(dataWithoutSpikes, open("data.pkl", "wb"))
+
+#dataWithoutSpikes = pickle.load(open("data.pkl"))
 '''
 
-#pickle.dump(dataWithoutSpikes, open("data.pkl", "wb"))
-
-dataWithoutSpikes = pickle.load(open("data.pkl"))
-
-mean = np.average(dataWithoutSpikes)
-variance = np.std(dataWithoutSpikes)
+average = np.average(dataWithoutSpikes)
+std = np.std(dataWithoutSpikes)
 
 plt.figure()
 plt.xlabel('Membrane potential/mV')
 plt.ylabel('Probability density')
 n, bins, patches = plt.hist(dataWithoutSpikes, 50, normed=1, facecolor='green', alpha=0.75)
 plt.show()
-plt.savefig('figure3.png')
+plt.savefig('../output/day1_figure3.png')
