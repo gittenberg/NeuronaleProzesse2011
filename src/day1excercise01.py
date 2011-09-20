@@ -1,6 +1,7 @@
 import scipy.io 
 import matplotlib.pyplot as plt
 import numpy as np
+import pickle
 
 a1 = scipy.io.loadmat('A1_data_set_040528_boucsein_nostruct.mat')
 
@@ -48,8 +49,45 @@ for spikeOnsetTime in (spikeTimes[:-1]):
                 axis=0)
 
 averageSpike = []
+varianceSpike = []
 for x in range(0, 2*n):
     averageSpike.append(np.average(spikeArray[:,x]))
+    varianceSpike.append(np.std(spikeArray[:,x]))
+
+upper = np.array(averageSpike) + np.array(varianceSpike)
+lower = np.array(averageSpike) - np.array(varianceSpike)
+
+timePoints = [x * 0.04 for x in range(-250, 250)] 
 
 plt.figure()
-plt.plot(averageSpike)
+plt.xlabel('Time/ms')
+plt.ylabel('Membrane potential/mV')
+plt.plot(timePoints, averageSpike)
+plt.plot(timePoints, lower)
+plt.plot(timePoints, upper)
+plt.savefig('figure2.png')
+
+#exercise 4
+
+'''dataWithoutSpikes = data.copy()
+for spikeOnsetTime in (spikeTimes)[::-1]:
+    print spikeOnsetTime 
+    dataWithoutSpikes = np.delete(dataWithoutSpikes, range(spikeOnsetTime+n,
+        spikeOnsetTime-n, -1))
+    #for x in range(spikeOnsetTime+n, spikeOnsetTime-n, -1):
+    #    dataWithoutSpikes = np.delete(dataWithoutSpikes, x)
+'''
+
+#pickle.dump(dataWithoutSpikes, open("data.pkl", "wb"))
+
+dataWithoutSpikes = pickle.load(open("data.pkl"))
+
+mean = np.average(dataWithoutSpikes)
+variance = np.std(dataWithoutSpikes)
+
+plt.figure()
+plt.xlabel('Membrane potential/mV')
+plt.ylabel('Probability density')
+n, bins, patches = plt.hist(dataWithoutSpikes, 50, normed=1, facecolor='green', alpha=0.75)
+plt.show()
+plt.savefig('figure3.png')
