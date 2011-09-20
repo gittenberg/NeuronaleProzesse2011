@@ -4,7 +4,7 @@ import numpy as np
 
 a1 = scipy.io.loadmat('A1_data_set_040528_boucsein_nostruct.mat')
 
-#excercise 1
+#exercise 1
 
 # 2 Sekunden entsprechen 2/(4e-05) = 50000 Datenpunkten
 data = a1['V'][:,0]
@@ -25,7 +25,7 @@ plt.draw()
 
 plt.savefig('figure1.png')
 
-#excercise 2
+#exercise 2
 
 theta = -20 #threshold value
 dataSpikes  = data>theta
@@ -33,3 +33,23 @@ spikePoints = np.diff(dataSpikes)
 spikeTimes = np.where(np.logical_and(spikePoints, dataSpikes[:-1]))[0]
 numActionPotentials = len(spikeTimes)
 avgFiringRate = numActionPotentials / length
+
+#exercise 3
+
+n = int(0.01 / interval)
+spikeArray=[]
+for spikeOnsetTime in (spikeTimes[:-1]):
+    if(len(spikeArray) == 0):
+        spikeArray = np.array([data[spikeOnsetTime-n:spikeOnsetTime+n]])
+
+    else:
+        spikeArray = np.append(spikeArray,
+                np.array([data[spikeOnsetTime-n:spikeOnsetTime+n]]),
+                axis=0)
+
+averageSpike = []
+for x in range(0, 2*n):
+    averageSpike.append(np.average(spikeArray[:,x]))
+
+plt.figure()
+plt.plot(averageSpike)
