@@ -22,12 +22,16 @@ plt.plot(timePoints[startPoint:endPoint], unfilteredTrace[startPoint:endPoint],
         color='0.7')
 plt.plot(timePoints[startPoint:endPoint], filteredTrace[startPoint:endPoint],
 'b')
+plt.xlabel('Time/s')
+plt.ylabel('Current/pA')
+
+plt.suptitle("Filtered vs unfiltered trace, threshold crossings")
+plt.savefig('../output/day2_figure5.png')
 
 #exercise 3
 
-threshold = 10
-line = plt.axhline(y=threshold, xmin=startPoint, xmax=endPoint, color='r')
 #plt.plot(line)
+threshold = 10
 
 aboveThreshold  = filteredTrace>threshold
 belowThreshold = filteredTrace<threshold
@@ -36,6 +40,8 @@ visualOnset_idx = np.where(np.logical_and(belowThreshold[startPoint:endPoint-1],
     aboveThreshold[startPoint+1:endPoint]))
 visualOnset_idx *= timeResolutionS[0]
 numCrossings = len(onset_idx)
+
+line = plt.axhline(y=threshold, xmin=startPoint, xmax=endPoint, color='r')
 
 visualOnset_idy = np.ones(len(visualOnset_idx)) * threshold
 plt.plot(visualOnset_idx, visualOnset_idy, 'rD')
@@ -60,74 +66,50 @@ for PSC in PSCs:
     plt.plot(timePoints, PSC, color='0.7')
 
 averagePSC = []
-#varianceSpike = []
+stdPSC = []
 for x in range(0, window):
     averagePSC.append(np.average(PSCs[:,x]))
-    #varianceSpike.append(np.std(spikeArray[:,x]))
+    stdPSC.append(np.std(PSCs[:,x]))
 
 plt.plot(timePoints, averagePSC, color='b')
-
-plt.draw()
-plt.show()
-'''data = a1['V'][:,0]
-interval = a1['SampleIntervalSeconds'][0][0]
-length = len(data) * interval
-#length of complete voltage trace = number of data points times interval =
-#90.32 seconds
-
-# 2 Sekunden entsprechen 2/(4e-05) = 50000 Datenpunkten
-
-ax = plt.gca()
 plt.xlabel('Time/s')
-plt.ylabel('Membrane potential/mV')
-ax.set_ylim(-75, 20)
-plt.draw()
-#plt.show()
-
-plt.savefig('../output/day1_figure1.png')
-
-#exercise 2
-
-theta = -10 #threshold value
-
-#exercise 3
-
-
-
-upper = np.array(averageSpike) + np.array(varianceSpike)
-lower = np.array(averageSpike) - np.array(varianceSpike)
-
-timePoints = [x * 0.04 for x in range(-250, 250)] 
+plt.ylabel('Current/pA')
+plt.suptitle("PSC traces, average PSC")
+plt.savefig('../output/day2_figure6.png')
 
 plt.figure()
-plt.xlabel('Time/ms')
-plt.ylabel('Membrane potential/mV')
-plt.plot(timePoints, averageSpike)
+
+upper = np.array(averagePSC) + np.array(stdPSC)
+lower = np.array(averagePSC) - np.array(stdPSC)
+
+plt.plot(timePoints, averagePSC, color='b')
 plt.plot(timePoints, lower)
 plt.plot(timePoints, upper)
-plt.plot(timePoints, np.array(varianceSpike))
-plt.savefig('../output/day1_figure2.png')
 
-#exercise 4
+plt.xlabel('Time/s')
+plt.ylabel('Current/pA')
+plt.suptitle("Average PSC +- standard deviation")
 
+plt.draw()
+plt.savefig('../output/day2_figure7.png')
+maxAveragePeak = np.max(averagePSC)
+print 'Max average peak: ', maxAveragePeak
 
-dataWithoutSpikes = data.copy()
-for spikeOnsetTime in (spikeTimes)[::-1]:
-    print spikeOnsetTime 
-    dataWithoutSpikes = np.delete(dataWithoutSpikes, range(spikeOnsetTime+n,
-        spikeOnsetTime-n, -1))
-
-pickle.dump(dataWithoutSpikes, open("data.pkl", "wb"))
-
-#dataWithoutSpikes = pickle.load(open("data.pkl"))
-
-average = np.average(dataWithoutSpikes)
-std = np.std(dataWithoutSpikes)
+#exercise 6
 
 plt.figure()
-plt.xlabel('Membrane potential/mV')
-plt.ylabel('Probability density')
-n, bins, patches = plt.hist(dataWithoutSpikes, 50, normed=1, facecolor='green', alpha=0.75)
+
+peakList = []
+for PSC in PSCs:
+    peakList.append(np.max(PSC))
+
+plt.xscale('log')
+n, bins, patches = plt.hist(peakList, bins=10**np.linspace(1,2,20), normed=1, facecolor='green', alpha=0.75)
+
+plt.xlabel('Peak current/pA')
+plt.ylabel('Frequency')
+plt.suptitle("Peak current frequency distribution")
+
+plt.draw()
+plt.savefig('../output/day2_figure8.png')
 plt.show()
-plt.savefig('../output/day1_figure3.png')
-'''
