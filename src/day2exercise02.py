@@ -12,6 +12,22 @@ shtCmdVoltage = a1['Z'][:,0]
 tmpCurRes = a1['I_TimeResolutionS'][0][0]
 tmpShtRes = a1['Z_TimeResolutionS'][0][0]
 
+plt.subplot(3,1,1)
+window = int(600/tmpCurRes)
+length = len(curTrc[:window])
+timePoints = np.arange(0,length) * tmpCurRes
+plt.ylabel('Current/pA')
+plt.xlabel('Time/s')
+plt.plot(timePoints[:window],curTrc[:window])
+
+plt.subplot(3,1,2)
+window = int(600/tmpShtRes)
+length = len(shtCmdVoltage[:window])
+timePoints = np.arange(0,length) * tmpShtRes
+plt.ylabel('Voltage/V')
+plt.xlabel('Time/s')
+plt.plot(timePoints[:window],shtCmdVoltage[:window])
+
 stimOnsetPoints = np.where(np.diff(shtCmdVoltage) < -3.5)[0]
 stimOnsetTimes = stimOnsetPoints * tmpShtRes
 stimOnsetGroup = np.reshape(stimOnsetPoints, (3,len(stimOnsetPoints)/3), order='F')
@@ -50,36 +66,34 @@ for EPSCgroup in targetGroup:
 	
 timePoints = np.arange(0, 2083) * tmpCurRes
 
-fig = plt.figure()
 plt.suptitle('Average excitatory postsynaptic currents')
-plt.subplot(3,1,1)
+plt.subplot(3,3,7)
 for EPSC in targetGroup[0]:
 	plt.plot(timePoints, EPSC, color='0.7')
 plt.plot(timePoints, avEPSCgroup[0])
-plt.text(0.06, 120, 'mean='+str(meanGroup[0]))
-plt.text(0.06, 100, 'std='+str(stdGroup[0]))
-plt.text(0.06, 80, 'cof. var.='+str(varCofGroup[0]))
+plt.text(0.06, 120, 'mean='+str(meanGroup[0])[:6])
+plt.text(0.06, 100, 'std='+str(stdGroup[0])[:6])
+plt.text(0.06, 80, 'cof. var.='+str(varCofGroup[0])[:6])
 plt.ylabel('Current/pA')
-plt.subplot(3,1,2)
+plt.xlabel('Time/s')
+plt.subplot(3,3,8)
 for EPSC in targetGroup[1]:
 	plt.plot(timePoints, EPSC, color='0.7')
 plt.plot(timePoints, avEPSCgroup[1])
-plt.text(0.06, 60, 'mean='+str(meanGroup[1]))
-plt.text(0.06, 50, 'std='+str(stdGroup[1]))
-plt.text(0.06, 40, 'cof. var.='+str(varCofGroup[1]))
-plt.ylabel('Current/pA')
-plt.subplot(3,1,3)
+plt.text(0.06, 60, 'mean='+str(meanGroup[1])[:6])
+plt.text(0.06, 50, 'std='+str(stdGroup[1])[:6])
+plt.text(0.06, 40, 'cof. var.='+str(varCofGroup[1])[:6])
+plt.xlabel('Time/s')
+plt.subplot(3,3,9)
 for EPSC in targetGroup[2]:
 	plt.plot(timePoints, EPSC, color='0.7')
 plt.plot(timePoints, avEPSCgroup[2])
-plt.text(0.06, 120, 'mean='+str(meanGroup[2]))
-plt.text(0.06, 100, 'std='+str(stdGroup[2]))
-plt.text(0.06, 80, 'cof. var.='+str(varCofGroup[2]))
-plt.ylabel('Current/pA')
+plt.text(0.06, 120, 'mean='+str(meanGroup[2])[:6])
+plt.text(0.06, 100, 'std='+str(stdGroup[2])[:6])
+plt.text(0.06, 80, 'cof. var.='+str(varCofGroup[2])[:6])
 plt.xlabel('Time/s')
 
 plt.savefig('../output/day2_figure9.png')
 
 plt.draw()
 plt.show()
-
