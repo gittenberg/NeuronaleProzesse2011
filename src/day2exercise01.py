@@ -26,7 +26,6 @@ plt.xlabel('Time/s')
 plt.ylabel('Current/pA')
 
 plt.suptitle("Filtered vs unfiltered trace, threshold crossings")
-plt.savefig('../output/day2_figure5.png')
 
 #exercise 3
 
@@ -47,6 +46,7 @@ visualOnset_idy = np.ones(len(visualOnset_idx)) * threshold
 plt.plot(visualOnset_idx, visualOnset_idy, 'rD')
 
 plt.draw()
+plt.savefig('../output/day2_figure5.png')
 
 #exercise 4
 
