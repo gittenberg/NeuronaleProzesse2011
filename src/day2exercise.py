@@ -10,7 +10,7 @@ a1 = scipy.io.loadmat('../data/spontaneous_recording_nostruct.mat')
 unfilteredTrace = a1['I']
 filteredTrace = a1['FI']
 timeResolutionS = a1['TimeResolutionS']
-samplingFrequency = a1['SamplingFrequencyHz']
+samplingFrequency = a1['SamplingFrequencyHz'][0][0]
 
 length = len(unfilteredTrace)
 timePoints = (np.arange(0,length) * timeResolutionS)[0]
@@ -40,7 +40,32 @@ numCrossings = len(onset_idx)
 visualOnset_idy = np.ones(len(visualOnset_idx)) * threshold
 plt.plot(visualOnset_idx, visualOnset_idy, 'rD')
 
+plt.draw()
 
+#exercise 4
+
+window = int(0.05 * samplingFrequency) 
+
+PSCs=[unfilteredTrace[int(onset_idx[0]-window/2):int(onset_idx[0]+window/2)]]
+for onsetTime in (onset_idx[1:]):
+    PSCs = np.append(PSCs,[unfilteredTrace[int(onsetTime-window/2):int(onsetTime+window/2)]], axis=0)
+
+#exercise 5
+
+plt.figure()
+
+timePoints = (np.arange(0,window) * timeResolutionS)[0]
+
+for PSC in PSCs:
+    plt.plot(timePoints, PSC, color='0.7')
+
+averagePSC = []
+#varianceSpike = []
+for x in range(0, window):
+    averagePSC.append(np.average(PSCs[:,x]))
+    #varianceSpike.append(np.std(spikeArray[:,x]))
+
+plt.plot(timePoints, averagePSC, color='b')
 
 plt.draw()
 plt.show()
@@ -67,16 +92,7 @@ theta = -10 #threshold value
 
 #exercise 3
 
-n = int(0.01 / interval)
-spikeArray=[data[spikeTimes[0]-n:spikeTimes[0]+n]]
-for spikeOnsetTime in (spikeTimes[1:-1]):
-    spikeArray = np.append(spikeArray, [data[spikeOnsetTime-n:spikeOnsetTime+n]], axis=0)
 
-averageSpike = []
-varianceSpike = []
-for x in range(0, 2*n):
-    averageSpike.append(np.average(spikeArray[:,x]))
-    varianceSpike.append(np.std(spikeArray[:,x]))
 
 upper = np.array(averageSpike) + np.array(varianceSpike)
 lower = np.array(averageSpike) - np.array(varianceSpike)
@@ -94,12 +110,6 @@ plt.savefig('../output/day1_figure2.png')
 
 #exercise 4
 
-deleteList = []
-for spikeOnsetTime in spikeTimes:
-    for x in range(spikeOnsetTime-n, spikeOnsetTime+n):
-	deleteList.append(x)
-
-dataWithoutSpikes = np.delete(data, deleteList)
 
 dataWithoutSpikes = data.copy()
 for spikeOnsetTime in (spikeTimes)[::-1]:
