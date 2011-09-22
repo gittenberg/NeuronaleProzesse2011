@@ -67,6 +67,8 @@ FF = np.std(spikeCount)**2 / np.mean(spikeCount)
 
 print 'Fano factor:', FF
 
+plt.savefig('../output/day3_figure1.png')
+
 plt.draw()
 plt.show()
 
