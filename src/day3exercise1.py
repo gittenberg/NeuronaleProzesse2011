@@ -7,10 +7,19 @@ file = open('../data/SFA_reg_1.2q_200tau_mn.gdf')
 
 s = []
 id = []
+trialSpikeGroups = {}
+    
 for line in file:
     list = line.strip().split('  ')
     id.append(int(float((list[0]))))
     s.append(float(list[1]) / 10.0 - 3000.0)
+
+for i in id:
+    if not trialSpikeGroups.has_key(i):
+        trialSpikeGroups[i] = []
+
+for i, time in zip(id, s):
+    trialSpikeGroups[i].append(time)
 
 file.close()
 
@@ -28,6 +37,7 @@ binWidth = 20
 binArray = np.linspace(-3000, 3000, 3000/binWidth)
 h, bins = np.histogram(s, binArray)
 
+#exercise 5
 
 plt.subplot(3,1,2)
 plt.ylabel('Rate 1/s')
@@ -47,6 +57,15 @@ b = plt.bar(bins[0:h.size], h)
 plt.setp(b, width=100)
 plt.legend((b[0],), ('bins = 50ms',), loc='upper left')
 
+#exercise 6
+
+stimulusSpikeGroups = [[entry for entry in trialSpikeGroups[trial] if entry >=
+    0 and entry <= 2000] for trial in trialSpikeGroups]
+
+spikeCount = [len(trial) for trial in stimulusSpikeGroups]
+FF = np.std(spikeCount)**2 / np.mean(spikeCount)
+
+print 'Fano factor:', FF
 
 plt.draw()
 plt.show()
