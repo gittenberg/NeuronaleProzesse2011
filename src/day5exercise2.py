@@ -46,15 +46,18 @@ def exercise1(n_inhib=25, n_excit=100):
 
     savefig('../output/day5figure3.png')
 
+    '''
+
     figure()
 
-    window = 100
+    window = 1000
     STAgroup = []
-    for spike in spikes_e:
-        startTime = int(spike[1])
-        if startTime > window*timestep and len(pot) > startTime + 2*window*timestep:
-            STAgroup.append(pot[startTime/timestep-window:startTime/timestep+2*window])
+    for spike in spikes_i:
+        startTime = int(spike[1]/timestep)
+        if startTime > window and len(pot) > startTime + 2*window:
+            STAgroup.append(pot[startTime-window:startTime+2*window,2])
     
+    import pdb; pdb.set_trace()
     timePoints = np.arange(0,3*window)
 
 
@@ -62,19 +65,19 @@ def exercise1(n_inhib=25, n_excit=100):
         if len(timePoints) == len(STA):
             plt.plot(timePoints, STA[:,2], color='0.7')
 
-    valueGroup = []
-    for STA in STAgroup:
-        valueGroup.append(STA[:,2])
+    valueGroup = [np.array(STAgroup[1][:,2])]
+    for STA in STAgroup[2:]:
+        if len(timePoints) == len(STA):
+            valueGroup = np.append(valueGroup, [np.array(STA[:,2])], axis=0)
 
 
-    valueGroup = np.array(valueGroup)
     averageSTA = []
-    for x in range(0, window):
+    for x in range(0, 3*window):
         averageSTA.append(np.average(np.array(valueGroup[:,0])))
-
+    
     
     plot(timePoints, averageSTA)
-
+    '''
     figure()
     xlabel('Time/ms')
     ylabel(u'Inhibitory conductance/\u00B5S')
