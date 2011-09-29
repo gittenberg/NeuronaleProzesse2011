@@ -75,8 +75,12 @@ outvolts=[]
 
 def sim(trial):
     global direction
+    global inspikes
+    global outspikes
+    global outspikes2
+    global outvolts
     direction=0
-    print direction
+    #print direction
     p.reset()
     #for direction in dirs:
     for n in range(len(neuron)):
@@ -114,29 +118,47 @@ def sim(trial):
     return inspikes,outspikes
 
 def updateWeights():
-    adjust=0.1
+    global direction
+    print direction
+    global inspikes
+    global outspikes
+    global outspikes2
+    global outvolts
+    adjust=0.05
     negadjust=0.02
     nmax=inspikes.index(max(inspikes))
     if (outspikes[0]<outspikes[1]) and (direction==3):
         prj[2*nmax+1].setWeights(prj[2*nmax+1].getWeights()[0]+adjust)
         print 'correct'
+        print prj[2*nmax+1].getWeights()
     elif (outspikes[0]>outspikes[1]) and (direction==0): 
         prj[2*nmax+0].setWeights(prj[2*nmax+0].getWeights()[0]+adjust)
 	print 'correct'
+	print prj[2*nmax+0].getWeights()
     elif (outspikes[0]>=outspikes[1]) and (direction==3):
+	
 	prj[2*nmax+0].setWeights(max(0,prj[2*nmax+0].getWeights()[0]-negadjust))
+	print prj[2*nmax+0].getWeights()
     elif (outspikes[0]<=outspikes[1]) and (direction==0):
 	 print 'wrong'
 	 prj[2*nmax+1].setWeights(max(0,prj[2*nmax+1].getWeights()[0]-negadjust))
 	 print 'wrong' 
+	 print prj[2*nmax+1].getWeights()
     else:
       
 	 print 'no'
+    print
 	
     
   
 def train():
+    global direction
     for i in range(10):
+	direction=2
+        sim(i)
+        updateWeights()
+    
+	direction=3
         sim(i)
         updateWeights()
       

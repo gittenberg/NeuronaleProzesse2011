@@ -2,7 +2,7 @@
 import scipy.io as io
 
 from pylab import *
-import numpy
+import numpy as np
 import pyNN.neuron as p
 
 p.setup(timestep=0.1)
@@ -51,8 +51,8 @@ for i in range(nout):
     
 
 # initialise connections
-initweight=0.05
-prj=[]
+initweight=0.08
+prj = []
 for i in range(nneurons):
     for j in range(nout):
         prj.append(p.Projection(neurons[i], out[j], target="excitatory",method=p.AllToAllConnector()))
@@ -60,12 +60,17 @@ for i in range(nneurons):
         
         
 # set inputs
+startstimulus = 750
+endstimulus = 1500
 for direction in dirs:
     for ntrial in range(ntrials):
 	print "Training direction:", direction, ", trial:", ntrial+1
 	print "Reading data:"
 	trainingset = [DATA[direction][nneuron][ntrial] for nneuron in range(nneurons)] #TODO: select time window
-	#print trainingset
+	trainingset = [trainingset[i][startstimulus < trainingset[i]] for i in range(nneurons)]
+	trainingset = [trainingset[i][trainingset[i] < endstimulus] for i in range(nneurons)]
+	print trainingset[4]
+	#import pdb; pdb.set_trace()
 
 	# run simulation
 	p.reset()
@@ -92,12 +97,15 @@ for direction in dirs:
 	    outspikes[j] = spikes
 	    outvolts[j] = o.get_v()
 	    print "--------------------------------"
-	    print j, outspikes[j], len(outspikes[j])
+	    #print j, outspikes[j], len(outspikes[j])
 	    
 	    #ax.plot(outspikes[j], [j]*len(outspikes[j]), 'b|', markersize = 20.)
 
 	    def learn():
 		print "Learning..."
+		for p in prj:
+		    currentWeight = p.getWeights()[0]
+		    print direction, ntrial, p, currentWeight
 
 	    learn()
 
