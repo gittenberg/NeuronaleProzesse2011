@@ -60,17 +60,15 @@ for i in range(nneurons):
         
         
 # set inputs
-startstimulus = 750
-endstimulus = 1500
-for direction in dirs:
-    for ntrial in range(ntrials):
+startstimulus = 750 # TODO:
+endstimulus = 1000  # TODO:
+for ntrial in range(ntrials):
+    for direction in dirs:
 	print "Training direction:", direction, ", trial:", ntrial+1
 	print "Reading data:"
-	trainingset = [DATA[direction][nneuron][ntrial] for nneuron in range(nneurons)] #TODO: select time window
+	trainingset = [DATA[direction][nneuron][ntrial] for nneuron in range(nneurons)]
 	trainingset = [trainingset[i][startstimulus < trainingset[i]] for i in range(nneurons)]
 	trainingset = [trainingset[i][trainingset[i] < endstimulus] for i in range(nneurons)]
-	print trainingset[4]
-	#import pdb; pdb.set_trace()
 
 	# run simulation
 	p.reset()
@@ -80,12 +78,12 @@ for direction in dirs:
 	for i, neuron in enumerate(neurons):
 	    neuron.set('spike_times', trainingset[i])
 	    #neuron[nneuron].set('spike_times',arange(1,1901,100))
+	    neuron.record()
 
 	p.run(2000)
 
-	outspikes = [[] for i in range(nout)]
+	outSpikeTimes = [[] for i in range(nout)]
 	outvolts = [[] for i in range(nout)]
-	print "--------------------------------"
 	## plot spike trains
 	#fig = figure()
 	#hold(True)
@@ -94,20 +92,71 @@ for direction in dirs:
 	for j, o in enumerate(out):
 	    spikes = list(o.getSpikes()[:,1])
 	    #print j, spikes, len(spikes), type(spikes)
-	    outspikes[j] = spikes
+	    outSpikeTimes[j] = spikes
 	    outvolts[j] = o.get_v()
 	    print "--------------------------------"
-	    #print j, outspikes[j], len(outspikes[j])
+	    #print j, outSpikeTimes[j], len(outSpikeTimes[j])
 	    
-	    #ax.plot(outspikes[j], [j]*len(outspikes[j]), 'b|', markersize = 20.)
+	    #ax.plot(outSpikeTimes[j], [j]*len(outSpikeTimes[j]), 'b|', markersize = 20.)
 
-	    def learn():
-		print "Learning..."
-		for p in prj:
-		    currentWeight = p.getWeights()[0]
-		    print direction, ntrial, p, currentWeight
+	inspikes=[0 for i in range(nneurons)]
+	outspikes=[0 for i in range(nout)]
+	outspikes2=[]
+	outvolts=[]
+	for i,o in enumerate(out):
+	    outspikes[i] = o.get_spike_counts().values()[0]
+	    #outspikes2.append(o.getSpikes())
+	    outvolts.append(o.get_v())
 
-	    learn()
+	for i,neuron in enumerate(neurons):
+	    inspikes[i] = neurons[i].get_spike_counts().values()[0]
+	    #print inspikes[i]
+
+	def learn():
+	    global direction
+	    global inspikes
+	    global outspikes
+	    global outspikes2
+	    global outvolts
+	    print "Learning..."
+	    #-----------------------------------------------------
+	    def updateWeights():
+		global direction
+		global inspikes
+		global outspikes
+		global outspikes2
+		global outvolts
+		global prj
+		print "Updating..."
+		adjust=0.02
+		negadjust=0.02
+		nmax=inspikes.index(max(inspikes))
+		if (outspikes[0]<outspikes[1]) and (direction==dirs[1]):
+		    prj[2*nmax+1].setWeights(prj[2*nmax+1].getWeights()[0]+adjust)
+		    print 'correct 0'
+		    print "Updated to:", prj[2*nmax+1].getWeights()
+		elif (outspikes[0]>outspikes[1]) and (direction==dirs[0]): 
+		    prj[2*nmax+0].setWeights(prj[2*nmax+0].getWeights()[0]+adjust)
+		    print 'correct 3'
+		    print "Updated to:", prj[2*nmax+0].getWeights()
+		elif (outspikes[0]>=outspikes[1]) and (direction==dirs[1]):
+		    print 'wrong 0'
+		    prj[2*nmax+0].setWeights(max(0,prj[2*nmax+0].getWeights()[0]-negadjust))
+		    print "Updated to:", prj[2*nmax+0].getWeights()
+		elif (outspikes[0]<=outspikes[1]) and (direction==dirs[0]):
+		    prj[2*nmax+1].setWeights(max(0,prj[2*nmax+1].getWeights()[0]-negadjust))
+		    print 'wrong 3' 
+		    print "Updated to:", prj[2*nmax+1].getWeights()
+		else:
+		    print 'no 5'
+		print
+	    updateWeights()
+	    #-----------------------------------------------------
+	    for p in prj:
+		currentWeight = p.getWeights()[0]
+		print direction, ntrial, p, currentWeight
+
+	learn()
 
 #show()
 #import pdb; pdb.set_trace()
