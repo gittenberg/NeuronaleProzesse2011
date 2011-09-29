@@ -34,20 +34,15 @@ for i in range(ndirections):
 #import pdb; pdb.set_trace()
 
 
-dir_1 = 0
-dir_2 = 3
-dirs = [dir_1, dir_2]
+dirs = [0,3]
 npop=1
 neuron=[]
 for nneuron in range(nneurons):
     neuron.append(p.Population(npop, cellclass=p.SpikeSourceArray))
 
-nneuron=3
-trial=20
-DAT=DATA[4][nneuron][trial]
-for direction in dirs:
-    for n in range(len(neuron)):
-	neuron[n].set('spike_times',DATA[direction][n][trial])
+#nneuron=3
+
+
 
 nout=2
 out=[]
@@ -60,7 +55,7 @@ prj=[]
 for i in range(nneurons):
     for j in range(nout):
         prj.append(p.Projection(neuron[i], out[j], target="excitatory",method=p.AllToAllConnector()))
-        prj[-1].setWeights(rand()*0.1)
+        prj[-1].setWeights(initweight)
 
 
 for o in out:
@@ -71,28 +66,82 @@ for o in out:
 for n in neuron:
   n.record()
   
-p.run(2000)
-
-outspikes=[]
+  
+direction=-1  
+inspikes=[0,0,0,0,0]
+outspikes=[0,0]
+outspikes2=[]
 outvolts=[]
-for o in out:
-    outspikes.append(o.getSpikes())
-    outvolts.append(o.get_v())
 
+def sim(trial):
+    global direction
+    direction=0
+    print direction
+    p.reset()
+    #for direction in dirs:
+    for n in range(len(neuron)):
+      neuron[n].set('spike_times',DATA[direction][n][trial])
 
-    
-      
-fig = figure()
-ax = fig.add_subplot(2,1,1)
-hold(True)
-for i in range(nout):
-    ax.plot(outspikes[i][:,1],i*ones_like(outspikes[i][:,1]),'b|')
-ax.set_ylim(-6,5)
-for i in range(nneurons):
+    p.run(2000)
+
+    outspikes=[0,0]
+    outspikes2=[]
+    outvolts=[]
+    for i,o in enumerate(out):
+        outspikes[i]=o.get_spike_counts().values()[0]
+        outspikes2.append(o.getSpikes())
+        outvolts.append(o.get_v())
+    inspikes=[0,0,0,0,0]
+
+    for i,n in enumerate(neuron):
+        inspikes[i]=n.get_spike_counts().values()[0]
+        
+    """  
+    fig = figure()
+    ax = fig.add_subplot(1,1,1)
+    hold(True)
+    for i in range(nout):
+        ax.plot(outspikes2[i][:,1],i*ones_like(outspikes2[i][:,1]),'b|')
+    ax.set_ylim(-6,5)
+    for i in range(nneurons):
    
 #    ax.plot(DATA[direction][i][trial],-1-i*ones_like(DATA[direction][i][trial]),'r|')
-    inspikes=neuron[i].getSpikes()
-    ax.plot(inspikes,-1-i*ones_like(inspikes),'r|')
-ax2=fig.add_subplot(2,1,2)
-ax2.plot(outvolts[0][:,1],outvolts[0][:,2])
+        inspikes2=neuron[i].getSpikes()
+        ax.plot(inspikes2,-1-i*ones_like(inspikes2),'r|')
+    #ax2=fig.add_subplot(2,1,2)
+    #ax2.plot(outvolts[0][:,1],outvolts[0][:,2])
+    """
+    return inspikes,outspikes
+
+def updateWeights():
+    adjust=0.1
+    negadjust=0.02
+    nmax=inspikes.index(max(inspikes))
+    if (outspikes[0]<outspikes[1]) and (direction==3):
+        prj[2*nmax+1].setWeights(prj[2*nmax+1].getWeights()[0]+adjust)
+        print 'correct'
+    elif (outspikes[0]>outspikes[1]) and (direction==0): 
+        prj[2*nmax+0].setWeights(prj[2*nmax+0].getWeights()[0]+adjust)
+	print 'correct'
+    elif (outspikes[0]>=outspikes[1]) and (direction==3):
+	prj[2*nmax+0].setWeights(max(0,prj[2*nmax+0].getWeights()[0]-negadjust))
+    elif (outspikes[0]<=outspikes[1]) and (direction==0):
+	 print 'wrong'
+	 prj[2*nmax+1].setWeights(max(0,prj[2*nmax+1].getWeights()[0]-negadjust))
+	 print 'wrong' 
+    else:
+      
+	 print 'no'
+	
+    
+  
+def train():
+    for i in range(10):
+        sim(i)
+        updateWeights()
+      
+      
+    
+   
+    
     
