@@ -20,7 +20,7 @@ data = [data1, data2, data3, data4, data5]
 
 ndirections = 6
 nneurons = 5
-ntrials = 2 #TODO: 35
+ntrials = 30
 
 DATA = [[[array([]) for i in range(ntrials)] for i in range(nneurons)] for i in range(ndirections)]
 for i in range(ndirections):
@@ -81,11 +81,11 @@ for direction in dirs:
 	outspikes = [[] for i in range(nout)]
 	outvolts = [[] for i in range(nout)]
 	print "--------------------------------"
-	# plot spike trains
-	fig = figure()
-	hold(True)
-	ax = fig.add_subplot(1,1,1)
-	title("Direction "+str(direction)+", Trial "+str(ntrial+1))
+	## plot spike trains
+	#fig = figure()
+	#hold(True)
+	#ax = fig.add_subplot(1,1,1)
+	#title("Direction "+str(direction)+", Trial "+str(ntrial+1))
 	for j, o in enumerate(out):
 	    spikes = list(o.getSpikes()[:,1])
 	    #print j, spikes, len(spikes), type(spikes)
@@ -94,16 +94,14 @@ for direction in dirs:
 	    print "--------------------------------"
 	    print j, outspikes[j], len(outspikes[j])
 	    
-	    ax.plot(outspikes[j], [j]*len(outspikes[j]), 'b|', markersize = 20.)
+	    #ax.plot(outspikes[j], [j]*len(outspikes[j]), 'b|', markersize = 20.)
 
 	    def learn():
 		print "Learning..."
 
 	    learn()
 
-
-
-show()
+#show()
 #import pdb; pdb.set_trace()
 
 
