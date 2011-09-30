@@ -201,7 +201,7 @@ def validate():
 	    trainingset = [DATA[direction][nneuron][ntrial] for nneuron in range(nneurons)]
 	    trainingset = [trainingset[i][startstimulus < trainingset[i]] for i in range(nneurons)]
 	    trainingset = [trainingset[i][trainingset[i] < endstimulus] for i in range(nneurons)]
-	    import pdb; pdb.set_trace()
+	    #import pdb; pdb.set_trace()
 
 	    # run simulation
 	    p.reset()
